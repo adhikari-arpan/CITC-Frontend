@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { Calendar, MapPin, Clock, ArrowLeft, ArrowRight } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import type { EventData, Event } from '../types';
 import { getPageSEO, getMetaTags, getEventSchema, SITE_CONFIG } from '../config/seoData';
 
@@ -45,7 +47,7 @@ const EventDetailsPage = () => {
 
     const isRunning = event.status === 'running';
 
-    const seoPageData = getPageSEO('eventDetails');
+    const seoPageData = getPageSEO('events');
     const pageTitle = `${event.title} - CITC Event`;
     const pageDescription = event.description.substring(0, 160) + '...';
     const pageUrl = typeof window !== 'undefined' ? window.location.href : `${SITE_CONFIG.url}/events/${event.id}`;
@@ -134,11 +136,13 @@ const EventDetailsPage = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
                     {/* Main Content */}
                     <div className="lg:col-span-2 space-y-8">
-                        <div className="prose prose-lg dark:prose-invert max-w-none">
-                            <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">About the Event</h2>
-                            <p className="text-slate-600 dark:text-slate-300 whitespace-pre-line leading-relaxed">
-                                {event.description}
-                            </p>
+                        <div className="bg-white dark:bg-slate-900/50 rounded-2xl p-6 md:p-8 border border-slate-200 dark:border-white/10">
+                            <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6 pb-3 border-b border-slate-200 dark:border-slate-700">About the Event</h2>
+                            <div className="markdown-content">
+                                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                    {event.description}
+                                </ReactMarkdown>
+                            </div>
                         </div>
 
                         {/* Gallery Section for Past Events */}
