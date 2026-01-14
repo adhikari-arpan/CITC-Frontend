@@ -1,30 +1,15 @@
 import React from 'react';
 import { Github, Linkedin, Instagram, Mail, User, Globe } from 'lucide-react';
 import type { Member } from '../types';
+import { getPersonSchema } from '../config/seoData';
 
 interface MemberCardProps {
     member: Member;
 }
 
 const MemberCard: React.FC<MemberCardProps> = ({ member }) => {
-    // Generate Person schema for SEO
-    const personSchema = {
-        "@context": "https://schema.org",
-        "@type": "Person",
-        "name": member.name,
-        "email": member.email,
-        ...(member.photo && { "image": member.photo }),
-        ...(member.title && { "jobTitle": member.title }),
-        ...(member.department && { "affiliation": member.department }),
-        "sameAs": [
-            ...(member.socials?.github ? [member.socials.github] : []),
-            ...(member.socials?.linkedin ? [member.socials.linkedin] : []),
-            ...(member.socials?.instagram ? [member.socials.instagram] : []),
-            ...(member.socials?.facebook ? [member.socials.facebook] : []),
-            ...(member.socials?.twitter ? [member.socials.twitter] : []),
-            ...(member.socials?.website ? [member.socials.website] : [])
-        ].filter(Boolean)
-    };
+    // Generate Person schema for SEO using centralized function
+    const personSchema = getPersonSchema(member);
 
     return (
         <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2">

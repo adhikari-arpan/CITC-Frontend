@@ -1,22 +1,28 @@
 import { useState, useEffect } from 'react';
+import { Helmet } from 'react-helmet-async';
 import MemberCard from '../components/MemberCard';
 import type { TeamData } from '../types';
+import { getPageSEO, getMetaTags, SITE_CONFIG } from '../config/seoData';
 
 const TeamPage = () => {
     const [teamData, setTeamData] = useState<TeamData | null>(null);
     const [loading, setLoading] = useState(true);
 
+    const seoData = getPageSEO('team');
+    const pageUrl = typeof window !== 'undefined' ? window.location.href : seoData.url;
+    const metaTags = getMetaTags({
+        title: seoData.title!,
+        description: seoData.description!,
+        url: pageUrl,
+        image: seoData.ogImage!,
+        keywords: seoData.keywords,
+    });
 
     useEffect(() => {
         fetch('/data/teams.json')
             .then((res) => res.json())
             .then((data) => {
                 setTeamData(data);
-                // Set default tab to the first team if available
-                if (data.teams.length > 0) {
-                    // We'll keep 'all' as default or maybe the first team, let's stick to 'all' or just render all sections
-                    // Actually, typically team pages show sections. Let's do sections first.
-                }
                 setLoading(false);
             })
             .catch((err) => {
@@ -71,9 +77,68 @@ const TeamPage = () => {
         return grouped;
     };
 
+    // Generate Organization schema with all team members
+    const organizationSchema = teamData ? {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": SITE_CONFIG.fullName,
+        "alternateName": SITE_CONFIG.name,
+        "url": SITE_CONFIG.url,
+        "logo": SITE_CONFIG.logo,
+        "description": SITE_CONFIG.description,
+        "member": teamData.members.map(member => ({
+            "@type": "Person",
+            "name": member.name,
+            "email": member.email,
+            ...(member.photo && { "image": member.photo }),
+            ...(member.title && { "jobTitle": member.title }),
+            "sameAs": [
+                ...(member.socials?.github ? [member.socials.github] : []),
+                ...(member.socials?.linkedin ? [member.socials.linkedin] : []),
+                ...(member.socials?.instagram ? [member.socials.instagram] : []),
+                ...(member.socials?.website ? [member.socials.website] : [])
+            ].filter(Boolean)
+        }))
+    } : null;
+
     return (
         <>
+            <Helmet>
+                {/* Primary Meta Tags */}
+                <title>{metaTags.title}</title>
+                <meta name="title" content={metaTags.meta.title} />
+                <meta name="description" content={metaTags.meta.description} />
+                <link rel="canonical" href={pageUrl} />
+                
+                {/* Open Graph / Facebook */}
+                <meta property="og:type" content={metaTags.og.type} />
+                <meta property="og:url" content={metaTags.og.url} />
+                <meta property="og:title" content={metaTags.og.title} />
+                <meta property="og:description" content={metaTags.og.description} />
+                <meta property="og:image" content={metaTags.og.image} />
+                <meta property="og:site_name" content={metaTags.og.siteName} />
+                
+                {/* Twitter */}
+                <meta name="twitter:card" content={metaTags.twitter.card} />
+                <meta name="twitter:url" content={metaTags.twitter.url} />
+                <meta name="twitter:title" content={metaTags.twitter.title} />
+                <meta name="twitter:description" content={metaTags.twitter.description} />
+                <meta name="twitter:image" content={metaTags.twitter.image} />
+                
+                {/* Additional SEO */}
+                <meta name="keywords" content={metaTags.meta.keywords} />
+                <meta name="author" content={metaTags.meta.author} />
+                <meta name="robots" content={metaTags.meta.robots} />
+            </Helmet>
+
             <div className="min-h-screen pt-24 pb-20 bg-white dark:bg-[#0f172a] bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.3),rgba(255,255,255,0))] dark:bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.3),rgba(255,255,255,0))] transition-colors duration-300">
+                {/* Organization Schema */}
+                {organizationSchema && (
+                    <script type="application/ld+json">
+                        {JSON.stringify(organizationSchema)}
+                    </script>
+                )}
+
                 <div className="container mx-auto px-4 md:px-6">
                     {/* Header */}
                     <div className="text-center max-w-3xl mx-auto mb-20">
