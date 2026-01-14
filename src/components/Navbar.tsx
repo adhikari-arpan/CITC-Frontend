@@ -179,6 +179,55 @@ const Navbar = () => {
                     onClick={() => setIsMobileMenuOpen(false)}
                 />
             )}
+
+            {/* Mobile Menu Sidebar (Drawer) */}
+            <div
+                className={`fixed top-0 right-0 bottom-0 z-[56] w-full max-w-xs bg-white dark:bg-[#0f172a] shadow-2xl transition-transform duration-500 ease-in-out md:hidden ${isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
+                    }`}
+            >
+                <div className="flex flex-col h-full pt-28 px-8 pb-10">
+                    <div className="flex flex-col space-y-6">
+                        {navLinks.map((link) => (
+                            link.type === 'route' ? (
+                                <Link
+                                    key={link.name}
+                                    to={link.href}
+                                    className="text-xl font-bold text-slate-900 dark:text-white hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors"
+                                    onClick={() => {
+                                        setIsMobileMenuOpen(false);
+                                        if (link.name === 'Home') {
+                                            handleHomeClick();
+                                        }
+                                    }}
+                                >
+                                    {link.name}
+                                </Link>
+                            ) : (
+                                <a
+                                    key={link.name}
+                                    href={link.href}
+                                    className="text-xl font-bold text-slate-900 dark:text-white hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors"
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                >
+                                    {link.name}
+                                </a>
+                            )
+                        ))}
+                    </div>
+
+                    <div className="mt-auto">
+                        <a
+                            href="https://forms.gle/5zHdTCPAGnkakToC7"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center justify-center px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold rounded-xl shadow-lg shadow-cyan-500/25 w-full text-center"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                            Join Club Now
+                        </a>
+                    </div>
+                </div>
+            </div>
         </>
     );
 };
